@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pendaftaran Rute Penerbangan</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f2f2f2; }
+    h2 { color: #333; }
+    form, table { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    label, select, input { display: block; margin-top: 10px; margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h2>Pendaftaran Rute Penerbangan</h2>
+  <form id="formPenerbangan">
+    <label>Nama Maskapai: <input type="text" id="maskapai" required></label>
+    <label>Bandara Asal:
+      <select id="asal" required></select>
+    </label>
+    <label>Bandara Tujuan:
+      <select id="tujuan" required></select>
+    </label>
+    <label>Harga Tiket (Rp): <input type="number" id="harga" required></label>
+    <label>Tanggal & Waktu Penerbangan: <input type="datetime-local" id="tanggal" required></label>
+    <button type="submit">Daftarkan</button>
+  </form>
+
+  <table id="hasil">
+    <thead>
+      <tr>
+        <th>Nomor</th>
+        <th>Tanggal</th>
+        <th>Nama Maskapai</th>
+        <th>Asal</th>
+        <th>Tujuan</th>
+        <th>Harga Tiket</th>
+        <th>Pajak</th>
+        <th>Total Harga</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const pajakBandara = {
+      "Soekarno Hatta": 65000,
+      "Husein Sastranegara": 50000,
+      "Abdul Rachman Saleh": 40000,
+      "Juanda": 30000
+    };
+
+    const bandaraList = Object.keys(pajakBandara).sort();
+
+    const asalSelect = document.getElementById("asal");
+    const tujuanSelect = document.getElementById("tujuan");
+
+    bandaraList.forEach(b => {
+      asalSelect.innerHTML += `<option value="${b}">${b}</option>`;
+      tujuanSelect.innerHTML += `<option value="${b}">${b}</option>`;
+    });
+
+    let nomor = 1;
+    const form = document.getElementById("formPenerbangan");
+    const tbody = document.querySelector("#hasil tbody");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const maskapai = document.getElementById("maskapai").value;
+      const asal = document.getElementById("asal").value;
+      const tujuan = document.getElementById("tujuan").value;
+      const harga = parseInt(document.getElementById("harga").value);
+      const tanggal = document.getElementById("tanggal").value;
+
+      const pajak = pajakBandara[asal] + pajakBandara[tujuan];
+      const total = harga + pajak;
+
+      const tanggalObj = new Date(tanggal);
+      const jam = tanggalObj.getHours().toString().padStart(2, '0');
+      const menit = tanggalObj.getMinutes().toString().padStart(2, '0');
+      const tanggalFormatted = `${tanggalObj.getDate()} ${tanggalObj.toLocaleString("id-ID", { month: "long" })} ${tanggalObj.getFullYear()} pukul ${jam}.${menit} WIB`;
+
+      const row = `<tr>
+        <td>${nomor++}</td>
+        <td>${tanggalFormatted}</td>
+        <td>${maskapai}</td>
+        <td>${asal}</td>
+        <td>${tujuan}</td>
+        <td>Rp${harga.toLocaleString()}</td>
+        <td>Rp${pajak.toLocaleString()}</td>
+        <td>Rp${total.toLocaleString()}</td>
+      </tr>`;
+      tbody.innerHTML += row;
+      form.reset();
+    });
+  </script>
+</body>
+</html>
